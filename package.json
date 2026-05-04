@@ -1,0 +1,13 @@
+{
+  "name": "frogger",
+  "private": true,
+  "packageManager": "pnpm@10.30.3",
+  "engines": { "node": ">=22" },
+  "pnpm": { "onlyBuiltDependencies": ["esbuild"] },
+  "scripts": {
+    "dev": "pnpm --filter @frogger/web dev",
+    "build": "pnpm --filter @frogger/web build",
+    "preview": "pnpm --filter @frogger/web preview",
+    "typecheck": "pnpm --filter @frogger/web exec tsc -b"
+  }
+}
