@@ -1,4 +1,5 @@
 import { useRef, useEffect, useCallback } from "react";
+import { useGameSounds } from "@freegamestore/games";
 
 /* ------------------------------------------------------------------ */
 /*  Constants                                                          */
@@ -438,19 +439,24 @@ export function Game({ onScore, onGameOver, paused }: GameProps) {
   const onGameOverRef = useRef(onGameOver);
   const pausedRef = useRef(paused);
   const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
+  const sounds = useGameSounds();
+  const soundsRef = useRef(sounds);
 
   onScoreRef.current = onScore;
   onGameOverRef.current = onGameOver;
   pausedRef.current = paused;
+  soundsRef.current = sounds;
 
   function killFrog(s: GameState) {
     s.alive = false;
     s.deathAnimTimer = 0.6;
+    soundsRef.current.playError();
   }
 
   function respawnFrog(s: GameState) {
     s.lives--;
     if (s.lives <= 0) {
+      soundsRef.current.playGameOver();
       onGameOverRef.current();
       return;
     }
@@ -474,6 +480,7 @@ export function Game({ onScore, onGameOver, paused }: GameProps) {
     s.frogCol = newCol;
     s.frogRow = newRow;
     s.frogRideOffset = 0;
+    soundsRef.current.playMove();
 
     if (newRow > s.furthestRow) {
       s.score += HOP_SCORE * (newRow - s.furthestRow);
@@ -488,6 +495,7 @@ export function Game({ onScore, onGameOver, paused }: GameProps) {
         const timeBonus = Math.floor(s.timer) * 2;
         s.score += HOME_SCORE + timeBonus;
         onScoreRef.current(s.score);
+        soundsRef.current.playScore();
 
         if (s.homesFilled.every(Boolean)) {
           s.levelComplete = true;
