@@ -14,11 +14,20 @@ export default function App() {
   const [score, setScore] = useState(0);
   const [bestScore, setBestScore] = useState(getBestScore);
   const [paused, setPaused] = useState(false);
+  const [lives, setLives] = useState(3);
+  const [level, setLevel] = useState(1);
+  const [timer, setTimer] = useState(30);
   const scoreRef = useRef(0);
 
   const handleScore = useCallback((s: number) => {
     scoreRef.current = s;
     setScore(s);
+  }, []);
+
+  const handleStats = useCallback((stats: { lives: number; level: number; timer: number }) => {
+    setLives(stats.lives);
+    setLevel(stats.level);
+    setTimer(stats.timer);
   }, []);
 
   const handleGameOver = useCallback(() => {
@@ -55,6 +64,9 @@ export default function App() {
           stats={[
             { label: "Score", value: score, accent: true },
             { label: "Best", value: bestScore },
+            { label: "Lives", value: lives },
+            { label: "Level", value: level },
+            { label: "Time", value: `${timer}s` },
           ]}
           onPlayPause={phase === "playing" ? () => setPaused(p => !p) : undefined}
           paused={paused}
@@ -74,7 +86,7 @@ export default function App() {
     >
       <div className="relative w-full h-full">
         {phase === "playing" ? (
-          <Game onScore={handleScore} onGameOver={handleGameOver} paused={paused} />
+          <Game onScore={handleScore} onGameOver={handleGameOver} onStats={handleStats} paused={paused} />
         ) : (
           <div className="flex flex-col items-center justify-center h-full gap-4">
             <p

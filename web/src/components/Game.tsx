@@ -94,6 +94,7 @@ interface GameState {
 interface GameProps {
   onScore: (score: number) => void;
   onGameOver: () => void;
+  onStats?: (stats: { lives: number; level: number; timer: number }) => void;
   paused?: boolean;
 }
 
@@ -293,32 +294,6 @@ function drawTurtle(
   }
 }
 
-function drawHUD(ctx: CanvasRenderingContext2D, canvasW: number, cellH: number, s: GameState) {
-  const hudH = cellH * 0.8;
-  const hudY = 4;
-
-  ctx.fillStyle = "rgba(0,0,0,0.6)";
-  ctx.beginPath();
-  ctx.roundRect(4, hudY, canvasW - 8, hudH, 6);
-  ctx.fill();
-
-  ctx.fillStyle = "#ffffff";
-  ctx.font = `bold ${hudH * 0.5}px Manrope, sans-serif`;
-  ctx.textBaseline = "middle";
-  const textY = hudY + hudH / 2;
-
-  ctx.textAlign = "left";
-  let livesText = "Lives: ";
-  for (let i = 0; i < s.lives; i++) livesText += "\u2665 ";
-  ctx.fillText(livesText, 12, textY);
-
-  ctx.textAlign = "center";
-  ctx.fillText(`Lv ${s.level}`, canvasW / 2, textY);
-
-  ctx.textAlign = "right";
-  ctx.fillStyle = s.timer < 10 ? "#ef4444" : "#ffffff";
-  ctx.fillText(`${Math.ceil(s.timer)}s`, canvasW - 12, textY);
-}
 
 function drawScene(canvas: HTMLCanvasElement, s: GameState) {
   const ctx = canvas.getContext("2d");
@@ -422,21 +397,20 @@ function drawScene(canvas: HTMLCanvasElement, s: GameState) {
     drawFrog(ctx, frogX, frogY, cellW, cellH, "#ef4444", alpha);
   }
 
-  // HUD
-  drawHUD(ctx, w, cellH, s);
 }
 
 /* ------------------------------------------------------------------ */
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
 
-export function Game({ onScore, onGameOver, paused }: GameProps) {
+export function Game({ onScore, onGameOver, onStats, paused }: GameProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stateRef = useRef<GameState>(createState(1, 0, LIVES_DEFAULT));
   const animRef = useRef<number>(0);
   const lastTimeRef = useRef<number>(0);
   const onScoreRef = useRef(onScore);
   const onGameOverRef = useRef(onGameOver);
+  const onStatsRef = useRef(onStats);
   const pausedRef = useRef(paused);
   const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
   const sounds = useGameSounds();
@@ -444,6 +418,7 @@ export function Game({ onScore, onGameOver, paused }: GameProps) {
 
   onScoreRef.current = onScore;
   onGameOverRef.current = onGameOver;
+  onStatsRef.current = onStats;
   pausedRef.current = paused;
   soundsRef.current = sounds;
 
@@ -622,6 +597,7 @@ export function Game({ onScore, onGameOver, paused }: GameProps) {
       const dt = Math.min((now - lastTimeRef.current) / 1000, 0.05);
       lastTimeRef.current = now;
       const s = stateRef.current;
+      onStatsRef.current?.({ lives: s.lives, level: s.level, timer: Math.ceil(s.timer) });
 
       if (s.levelComplete) {
         stateRef.current = createState(s.level + 1, s.score, s.lives);
