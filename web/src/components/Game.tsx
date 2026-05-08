@@ -93,6 +93,7 @@ interface GameState {
 interface GameProps {
   onScore: (score: number) => void;
   onGameOver: () => void;
+  paused?: boolean;
 }
 
 /* ------------------------------------------------------------------ */
@@ -428,17 +429,19 @@ function drawScene(canvas: HTMLCanvasElement, s: GameState) {
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
 
-export function Game({ onScore, onGameOver }: GameProps) {
+export function Game({ onScore, onGameOver, paused }: GameProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stateRef = useRef<GameState>(createState(1, 0, LIVES_DEFAULT));
   const animRef = useRef<number>(0);
   const lastTimeRef = useRef<number>(0);
   const onScoreRef = useRef(onScore);
   const onGameOverRef = useRef(onGameOver);
+  const pausedRef = useRef(paused);
   const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
 
   onScoreRef.current = onScore;
   onGameOverRef.current = onGameOver;
+  pausedRef.current = paused;
 
   function killFrog(s: GameState) {
     s.alive = false;
@@ -603,6 +606,11 @@ export function Game({ onScore, onGameOver }: GameProps) {
     lastTimeRef.current = performance.now();
 
     const tick = (now: number) => {
+      if (pausedRef.current) {
+        lastTimeRef.current = now;
+        animRef.current = requestAnimationFrame(tick);
+        return;
+      }
       const dt = Math.min((now - lastTimeRef.current) / 1000, 0.05);
       lastTimeRef.current = now;
       const s = stateRef.current;
