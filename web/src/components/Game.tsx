@@ -33,9 +33,10 @@ const COLOR_ROAD = "#3a3a3a";
 const COLOR_WATER = "#1a6dd4";
 const COLOR_HOME_BG = "#0d4a1a";
 const COLOR_HOME_FILLED = "#fbbf24";
-const COLOR_FROG = "#22c55e";
-const COLOR_FROG_EYE = "#ffffff";
-const COLOR_FROG_PUPIL = "#1a1a1a";
+const COLOR_HOPPER = "#f97316";
+const COLOR_HOPPER_SPOT = "#fde68a";
+const COLOR_HOPPER_ANTENNA = "#1a1a1a";
+const COLOR_HOPPER_DEATH = "#ef4444";
 const COLOR_LOG = "#8B4513";
 const COLOR_TURTLE = "#2d6b3f";
 const COLOR_TURTLE_SHELL = "#1a4a28";
@@ -147,7 +148,7 @@ function createState(level: number, score: number, lives: number): GameState {
 /*  Drawing functions (pure, no component state)                       */
 /* ------------------------------------------------------------------ */
 
-function drawFrog(
+function drawHopper(
   ctx: CanvasRenderingContext2D,
   x: number, y: number, cw: number, ch: number,
   color: string, alpha: number,
@@ -155,37 +156,41 @@ function drawFrog(
   ctx.save();
   ctx.globalAlpha = alpha;
 
-  const pad = cw * 0.12;
+  const pad = cw * 0.15;
   const bx = x + pad;
   const by = y + pad;
   const bw = cw - pad * 2;
   const bh = ch - pad * 2;
 
+  // Antennae, tips kept inside the cell
+  const tipY = y + pad * 0.4;
+  ctx.strokeStyle = COLOR_HOPPER_ANTENNA;
+  ctx.lineWidth = Math.max(1, cw * 0.04);
+  ctx.beginPath();
+  ctx.moveTo(bx + bw * 0.3, by + bh * 0.1);
+  ctx.lineTo(bx + bw * 0.2, tipY);
+  ctx.moveTo(bx + bw * 0.7, by + bh * 0.1);
+  ctx.lineTo(bx + bw * 0.8, tipY);
+  ctx.stroke();
+
+  ctx.fillStyle = COLOR_HOPPER_ANTENNA;
+  ctx.beginPath();
+  ctx.arc(bx + bw * 0.2, tipY, cw * 0.05, 0, Math.PI * 2);
+  ctx.arc(bx + bw * 0.8, tipY, cw * 0.05, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Body: squarish block with rounded corners
   ctx.fillStyle = color;
   ctx.beginPath();
-  ctx.roundRect(bx, by, bw, bh, bw * 0.3);
+  ctx.roundRect(bx, by, bw, bh, bw * 0.15);
   ctx.fill();
 
-  const eyeR = bw * 0.14;
-  const eyeOffX = bw * 0.25;
-  const eyeOffY = bh * 0.22;
-
-  ctx.fillStyle = COLOR_FROG_EYE;
+  // Spots
+  ctx.fillStyle = COLOR_HOPPER_SPOT;
   ctx.beginPath();
-  ctx.arc(bx + eyeOffX, by + eyeOffY, eyeR, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = COLOR_FROG_PUPIL;
-  ctx.beginPath();
-  ctx.arc(bx + eyeOffX, by + eyeOffY, eyeR * 0.5, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.fillStyle = COLOR_FROG_EYE;
-  ctx.beginPath();
-  ctx.arc(bx + bw - eyeOffX, by + eyeOffY, eyeR, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = COLOR_FROG_PUPIL;
-  ctx.beginPath();
-  ctx.arc(bx + bw - eyeOffX, by + eyeOffY, eyeR * 0.5, 0, Math.PI * 2);
+  ctx.arc(bx + bw * 0.3, by + bh * 0.4, bw * 0.1, 0, Math.PI * 2);
+  ctx.arc(bx + bw * 0.7, by + bh * 0.4, bw * 0.1, 0, Math.PI * 2);
+  ctx.arc(bx + bw * 0.5, by + bh * 0.7, bw * 0.1, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.restore();
@@ -354,7 +359,7 @@ function drawScene(canvas: HTMLCanvasElement, s: GameState) {
       ctx.beginPath();
       ctx.roundRect(x + 2, y + 2, cellW - 4, cellH - 4, 4);
       ctx.fill();
-      drawFrog(ctx, x, y, cellW, cellH, COLOR_FROG, 1);
+      drawHopper(ctx, x, y, cellW, cellH, COLOR_HOPPER, 1);
     } else {
       ctx.fillStyle = "#0a3312";
       ctx.beginPath();
@@ -389,12 +394,12 @@ function drawScene(canvas: HTMLCanvasElement, s: GameState) {
   if (s.alive) {
     const frogX = screenX(s.frogCol) + s.frogRideOffset * cellW;
     const frogY = screenY(s.frogRow);
-    drawFrog(ctx, frogX, frogY, cellW, cellH, COLOR_FROG, 1);
+    drawHopper(ctx, frogX, frogY, cellW, cellH, COLOR_HOPPER, 1);
   } else if (s.deathAnimTimer > 0) {
     const frogX = screenX(s.frogCol) + s.frogRideOffset * cellW;
     const frogY = screenY(s.frogRow);
     const alpha = s.deathAnimTimer / 0.6;
-    drawFrog(ctx, frogX, frogY, cellW, cellH, "#ef4444", alpha);
+    drawHopper(ctx, frogX, frogY, cellW, cellH, COLOR_HOPPER_DEATH, alpha);
   }
 
 }

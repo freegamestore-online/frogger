@@ -1,6 +1,6 @@
-# Frogger
+# Road Hopper
 
-A free game on FreeGameStore.
+A free game on FreeGameStore (formerly Frogger).
 
 - Subdomain: `frogger.freegamestore.online`
 - Dev: `pnpm install && pnpm dev`

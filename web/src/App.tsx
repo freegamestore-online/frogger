@@ -60,7 +60,7 @@ export default function App() {
     <GameShell
       topbar={
         <GameTopbar
-          title="Frogger"
+          title="Road Hopper"
           stats={[
             { label: "Score", value: score, accent: true },
             { label: "Best", value: bestScore },
@@ -74,7 +74,7 @@ export default function App() {
           actions={<GameAuth />}
           rules={
             <div>
-              <h3 style={{ fontWeight: 700 }}>Frogger</h3>
+              <h3 style={{ fontWeight: 700 }}>Road Hopper</h3>
               <h4 style={{ fontWeight: 600 }}>Rules</h4>
               <ul><li>Cross roads dodging traffic, then cross rivers riding logs</li><li>Reach all 5 home spots to complete the level</li><li>Don't get hit or fall in the water</li></ul>
               <h4 style={{ fontWeight: 600 }}>Controls</h4>

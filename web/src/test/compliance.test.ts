@@ -102,6 +102,28 @@ describe("FreeGameStore compliance", () => {
     });
   });
 
+  describe("Road Hopper branding", () => {
+    const html = read("index.html");
+    const appTsx = read("src/App.tsx");
+    const config = read("vite.config.ts");
+
+    it("index.html title says Road Hopper, not Frogger", () => {
+      expect(html).toMatch(/<title>Road Hopper\b/);
+      expect(html).not.toMatch(/<title>[^<]*Frogger/i);
+    });
+
+    it("App.tsx shows Road Hopper as the topbar title and rules heading", () => {
+      expect(appTsx).toContain("Road Hopper");
+      expect(appTsx).not.toContain("Frogger");
+    });
+
+    it("PWA manifest name and short_name say Road Hopper", () => {
+      expect(config).toContain("name: 'Road Hopper'");
+      expect(config).toContain("short_name: 'Road Hopper'");
+      expect(config).not.toMatch(/name: 'Frogger'/);
+    });
+  });
+
   describe("project structure", () => {
     it("has LICENSE at root", () => {
       expect(exists(resolve(ROOT, "LICENSE"))).toBe(true);
