@@ -542,7 +542,7 @@ export function Game({ onScore, onGameOver, onStats, paused }: GameProps) {
         const s = stateRef.current;
         const cellW = rect.width / COLS;
         const cellH = rect.height / ROWS;
-        const frogScreenX = rect.left + (s.frogCol + 0.5) * cellW;
+        const frogScreenX = rect.left + (s.frogCol + s.frogRideOffset + 0.5) * cellW;
         const frogScreenY = rect.top + (ROWS - 1 - s.frogRow + 0.5) * cellH;
         const tdx = touch.clientX - frogScreenX;
         const tdy = touch.clientY - frogScreenY;
@@ -619,6 +619,11 @@ export function Game({ onScore, onGameOver, onStats, paused }: GameProps) {
         s.deathAnimTimer -= dt;
         if (s.deathAnimTimer <= 0) {
           respawnFrog(s);
+          if (s.lives <= 0) {
+            // Game over: report the final lives and stop the loop
+            onStatsRef.current?.({ lives: s.lives, level: s.level, timer: Math.ceil(s.timer) });
+            return;
+          }
         }
         const canvas = canvasRef.current;
         if (canvas) drawScene(canvas, s);
