@@ -450,7 +450,7 @@ export function Game({ onScore, onGameOver, onStats, paused }: GameProps) {
 
   const moveFrog = useCallback((dx: number, dy: number) => {
     const s = stateRef.current;
-    if (!s.alive || s.levelComplete) return;
+    if (!s.alive || s.levelComplete || pausedRef.current) return;
 
     const newCol = s.frogCol + dx;
     const newRow = s.frogRow + dy;
@@ -554,13 +554,15 @@ export function Game({ onScore, onGameOver, onStats, paused }: GameProps) {
       }
     };
 
+    // Touch on the canvas only, so taps on the topbar don't move the frog
+    const canvas = canvasRef.current;
     window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("touchstart", handleTouchStart, { passive: true });
-    window.addEventListener("touchend", handleTouchEnd);
+    canvas?.addEventListener("touchstart", handleTouchStart, { passive: true });
+    canvas?.addEventListener("touchend", handleTouchEnd);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("touchstart", handleTouchStart);
-      window.removeEventListener("touchend", handleTouchEnd);
+      canvas?.removeEventListener("touchstart", handleTouchStart);
+      canvas?.removeEventListener("touchend", handleTouchEnd);
     };
   }, [moveFrog]);
 
@@ -646,10 +648,12 @@ export function Game({ onScore, onGameOver, onStats, paused }: GameProps) {
         }
 
         for (const obj of lane.objects) {
+          // Wrap by the lane's full cycle so spacing stays even
+          const cycle = lane.objects.length * (obj.width + lane.def.gap);
           if (lane.def.dir === 1 && obj.x > COLS + 2) {
-            obj.x -= COLS + obj.width + lane.def.gap + 2;
+            obj.x -= cycle;
           } else if (lane.def.dir === -1 && obj.x + obj.width < -2) {
-            obj.x += COLS + obj.width + lane.def.gap + 2;
+            obj.x += cycle;
           }
         }
 
