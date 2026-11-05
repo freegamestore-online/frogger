@@ -10,7 +10,7 @@ function getBestScore(): number {
 }
 
 export default function App() {
-  const [phase, setPhase] = useState<"menu" | "playing" | "over">("playing");
+  const [phase, setPhase] = useState<"playing" | "over">("playing");
   const [score, setScore] = useState(0);
   const [bestScore, setBestScore] = useState(getBestScore);
   const [paused, setPaused] = useState(false);

@@ -8,6 +8,7 @@
     "dev": "pnpm --filter @frogger/web dev",
     "build": "pnpm --filter @frogger/web build",
     "preview": "pnpm --filter @frogger/web preview",
+    "test": "pnpm --filter @frogger/web test",
     "typecheck": "pnpm --filter @frogger/web exec tsc -b"
   }
 }

@@ -595,6 +595,15 @@ export function Game({ onScore, onGameOver, onStats, paused }: GameProps) {
   useEffect(() => {
     lastTimeRef.current = performance.now();
 
+    const emitStats = (s: GameState) =>
+      onStatsRef.current?.({ lives: s.lives, level: s.level, timer: Math.ceil(s.timer) });
+
+    const nextFrame = () => {
+      const canvas = canvasRef.current;
+      if (canvas) drawScene(canvas, stateRef.current);
+      animRef.current = requestAnimationFrame(tick);
+    };
+
     const tick = (now: number) => {
       if (pausedRef.current) {
         lastTimeRef.current = now;
@@ -604,14 +613,12 @@ export function Game({ onScore, onGameOver, onStats, paused }: GameProps) {
       const dt = Math.min((now - lastTimeRef.current) / 1000, 0.05);
       lastTimeRef.current = now;
       const s = stateRef.current;
-      onStatsRef.current?.({ lives: s.lives, level: s.level, timer: Math.ceil(s.timer) });
+      emitStats(s);
 
       if (s.levelComplete) {
         stateRef.current = createState(s.level + 1, s.score, s.lives);
         onScoreRef.current(stateRef.current.score);
-        const canvas = canvasRef.current;
-        if (canvas) drawScene(canvas, stateRef.current);
-        animRef.current = requestAnimationFrame(tick);
+        nextFrame();
         return;
       }
 
@@ -621,13 +628,11 @@ export function Game({ onScore, onGameOver, onStats, paused }: GameProps) {
           respawnFrog(s);
           if (s.lives <= 0) {
             // Game over: report the final lives and stop the loop
-            onStatsRef.current?.({ lives: s.lives, level: s.level, timer: Math.ceil(s.timer) });
+            emitStats(s);
             return;
           }
         }
-        const canvas = canvasRef.current;
-        if (canvas) drawScene(canvas, s);
-        animRef.current = requestAnimationFrame(tick);
+        nextFrame();
         return;
       }
 
@@ -636,9 +641,7 @@ export function Game({ onScore, onGameOver, onStats, paused }: GameProps) {
       if (s.timer <= 0) {
         s.timer = 0;
         killFrog(s);
-        const canvas = canvasRef.current;
-        if (canvas) drawScene(canvas, s);
-        animRef.current = requestAnimationFrame(tick);
+        nextFrame();
         return;
       }
 
@@ -705,9 +708,7 @@ export function Game({ onScore, onGameOver, onStats, paused }: GameProps) {
         }
       }
 
-      const canvas = canvasRef.current;
-      if (canvas) drawScene(canvas, s);
-      animRef.current = requestAnimationFrame(tick);
+      nextFrame();
     };
 
     animRef.current = requestAnimationFrame(tick);
