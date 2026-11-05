@@ -5,6 +5,7 @@
 :root {
   /* Neutrals */
   --paper: #ffffff;
+  --bg: var(--paper);
   --ink: #1a1a1a;
   --muted: #6b7280;
   --line: #e5e7eb;
